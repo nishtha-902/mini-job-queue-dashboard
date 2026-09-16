@@ -72,3 +72,23 @@ If two requests both read `pending` and both request `running`, only one can cha
 This protects the state even if a caller bypasses the React UI and calls the API directly.
 
 For stronger production systems with multiple side effects, this same state transition can be placed inside a transaction together with any related writes/outbox event.
+
+
+## Production-readiness improvement: Health Check (Bonus)
+
+A GET /health endpoint was added as a small production-readiness improvement. It verifies that the NestJS application can successfully communicate with PostgreSQL before reporting the service as healthy.
+
+Endpoint
+
+- `GET /health`
+
+When the application and database are available, it returns HTTP 200 with a response similar to:
+
+```{
+  "status": "ok",
+  "database": "connected",
+  "timestamp": "2026-09-16T00:00:00.000Z"
+}
+```
+
+If the database connection check fails, the endpoint returns HTTP 503 Service Unavailable and reports the database as disconnected. This can be used by deployment platforms, load balancers, or monitoring systems to determine whether the backend is ready to serve traffic.
